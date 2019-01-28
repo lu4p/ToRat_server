@@ -13,15 +13,15 @@ import (
 	"log"
 )
 
-var private = privateKey()
+var privateKey = loadPrivateKey()
 
-func privateKey() *rsa.PrivateKey {
-	block, _ := pem.Decode([]byte(privatekey))
-	if block == nil {
-		fmt.Println("Could not decode rsakey")
+func loadPrivateKey() *rsa.PrivateKey {
+	key, err := ioutil.ReadFile("key.pem")
+	if err != nil {
+		log.Println("err read", err)
 		return nil
 	}
-
+	block, _ := pem.Decode(key)
 	priv, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
 		fmt.Println("Could not parse rsakey", err)
@@ -30,9 +30,10 @@ func privateKey() *rsa.PrivateKey {
 	return priv
 }
 
+// DecRsa decrypts RSA-encrypted data
 func DecRsa(encData []byte) ([]byte, error) {
 	rng := rand.Reader
-	decData, err := rsa.DecryptOAEP(sha256.New(), rng, private, encData, nil)
+	decData, err := rsa.DecryptOAEP(sha256.New(), rng, privateKey, encData, nil)
 
 	if err != nil {
 		log.Println("[!] Rsa:", err)
@@ -41,6 +42,7 @@ func DecRsa(encData []byte) ([]byte, error) {
 	return decData, nil
 }
 
+// DecAes decrypts data encrypted with AES
 func DecAes(encData []byte, aeskey []byte) ([]byte, error) {
 	block, err := aes.NewCipher(aeskey)
 	if err != nil {
@@ -59,28 +61,15 @@ func DecAes(encData []byte, aeskey []byte) ([]byte, error) {
 	return plaintext, nil
 }
 
+// DecAsym decypts asymetric encryption (2048 bit RSA + AES)
 func DecAsym(encData []byte) ([]byte, error) {
-	encAeskey := encData[:512]
-	encContent := encData[512:]
+	encAeskey := encData[:256]
+	encContent := encData[256:]
+	log.Println("before rsa")
 	aeskey, err := DecRsa(encAeskey)
 	if err != nil {
 		return nil, err
 	}
+	log.Println("after rsa")
 	return DecAes(encContent, aeskey)
-}
-
-func DecFile(path string) error {
-	encData, err := ioutil.ReadFile(path)
-	if err != nil {
-		return err
-	}
-	decData, err := DecAsym(encData)
-	if err != nil {
-		return err
-	}
-	err = ioutil.WriteFile(path, decData, 0666)
-	if err != nil {
-		return err
-	}
-	return nil
 }

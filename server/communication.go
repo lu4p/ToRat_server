@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
-	"strings"
 )
 
 const buffsize = 4096
@@ -66,10 +65,6 @@ func (c *client) getFile(filename string) error {
 	if filename == "screen" {
 		c.sendSt("screen")
 		filename = getTimeSt() + ".png"
-	} else if filename == "sync" {
-		c.sendSt("sync")
-		filename = getTimeSt() + ".zip"
-
 	} else {
 		c.sendSt("down " + filename)
 	}
@@ -85,14 +80,10 @@ func (c *client) getFile(filename string) error {
 	if err != nil {
 		return err
 	}
-	if strings.HasSuffix(filename, ".zip") {
-		unZip(filename, filepath.Join(c.Path, getTimeSt()))
-	}
 	return nil
 }
 
 func (c *client) sendFile(filename string) error {
-
 	c.sendSt("up " + filename)
 	content, err := ioutil.ReadFile(filename)
 	if err != nil {

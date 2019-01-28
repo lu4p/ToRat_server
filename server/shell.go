@@ -11,12 +11,7 @@ import (
 	"github.com/fatih/color"
 )
 
-var (
-	blue  = color.New(color.FgHiBlue).SprintFunc()
-	red   = color.New(color.FgHiRed).SprintFunc()
-	green = color.New(color.FgHiGreen).SprintFunc()
-)
-
+// Shell interactive shell
 func Shell() {
 	shell := ishell.New()
 	cwd, err := os.Getwd()
