@@ -1,5 +1,5 @@
-<a href="https://unlicense.org/">![License](https://img.shields.io/github/license/lu4p/ToRat_server.svg)</a>
-<a href="https://circleci.com/gh/lu4p/ToRat_server">![CircleCI (all branches)](https://img.shields.io/circleci/project/github/lu4p/ToRat_server.svg)</a>
+[![License](https://img.shields.io/github/license/lu4p/ToRat_server.svg)](https://unlicense.org/)
+[![CircleCI](https://circleci.com/gh/lu4p/ToRat_server.svg?style=svg)](https://circleci.com/gh/lu4p/ToRat_server)
 ## Build Server 
 To build the Server run
 ```
