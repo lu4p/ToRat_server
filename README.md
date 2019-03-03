@@ -1,3 +1,4 @@
+<a href="https://unlicense.org/">![License](https://img.shields.io/github/license/lu4p/ToRat_server.svg)</a>
 ## Build Server 
 To build the Server run
 ```
