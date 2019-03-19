@@ -125,9 +125,10 @@ func (client client) shellClient() {
 				color.HiRed("[!] Encoutered err listing dir")
 				return
 			}
-			println(strings.Replace(list, " ", "\n", -1))
+			println(strings.Replace(list, ";", "\n", -1))
+			listdir = strings.Split(list, ";")
 		},
-		Help: "simulate a login",
+		Help: "List the content of the current directoy",
 	})
 
 	shell.AddCmd(&ishell.Cmd{
@@ -180,7 +181,26 @@ func (client client) shellClient() {
 		},
 		Help: "upload a file from the cwd of the Server to cwd of the client: usage up <file>",
 	})
-
+	shell.AddCmd(&ishell.Cmd{
+		Name: "shred",
+		Func: func(c *ishell.Context) {
+			client.runCommand("shred "+strings.Join(c.Args, " "), true)
+		},
+		Completer: func([]string) []string {
+			return listdir
+		},
+		Help: "shred  everything in given path recursively",
+	})
+	shell.AddCmd(&ishell.Cmd{
+		Name: "shredremove",
+		Func: func(c *ishell.Context) {
+			client.runCommand("shredremove "+strings.Join(c.Args, " "), true)
+		},
+		Completer: func([]string) []string {
+			return listdir
+		},
+		Help: "shred and remove everything in given path recursively",
+	})
 	shell.AddCmd(&ishell.Cmd{
 		Name: "sync",
 		Func: func(c *ishell.Context) {
@@ -188,6 +208,7 @@ func (client client) shellClient() {
 		},
 		Help: "sync with the client",
 	})
+
 	shell.AddCmd(&ishell.Cmd{
 		Name: "cat",
 		Func: func(c *ishell.Context) {
@@ -233,5 +254,5 @@ func (client client) ls() []string {
 	if err != nil {
 		list = "Unknown"
 	}
-	return strings.Split(list, " ")
+	return strings.Split(list, ";")
 }
