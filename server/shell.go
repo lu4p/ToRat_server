@@ -61,13 +61,6 @@ func Shell() {
 		Help: "give a client an alias",
 	})
 	shell.AddCmd(&ishell.Cmd{
-		Name: "sync",
-		Func: func(c *ishell.Context) {
-
-		},
-		Help: "sync with all connected clients",
-	})
-	shell.AddCmd(&ishell.Cmd{
 		Name: "cd",
 		Func: func(c *ishell.Context) {
 			os.Chdir(strings.Join(c.Args, " "))
@@ -115,7 +108,7 @@ func (client client) shellClient() {
 		Completer: func([]string) []string {
 			return listdir
 		},
-		Help: "simulate a login",
+		Help: "change the working directory of the client",
 	})
 	shell.AddCmd(&ishell.Cmd{
 		Name: "ls",
@@ -127,7 +120,7 @@ func (client client) shellClient() {
 			}
 			println(strings.Replace(list, " ", "\n", -1))
 		},
-		Help: "simulate a login",
+		Help: "list the content of the working directory of the client",
 	})
 
 	shell.AddCmd(&ishell.Cmd{
@@ -220,7 +213,7 @@ func (client client) shellClient() {
 			c.Stop()
 			shell.Close()
 		},
-		Help: "exit the current session",
+		Help: "background the current session",
 	})
 	shell.NotFound(func(c *ishell.Context) {
 		client.runCommand(strings.Join(c.Args, " "), true)
