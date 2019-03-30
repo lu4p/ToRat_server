@@ -14,7 +14,7 @@ import (
 	"github.com/lu4p/ToRat_server/crypto"
 )
 
-const port = ":1337"
+const port = ":1338"
 
 var allClients []*client
 
