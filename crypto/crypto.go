@@ -8,6 +8,7 @@ import (
 	"crypto/sha256"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -63,6 +64,9 @@ func DecAes(encData []byte, aeskey []byte) ([]byte, error) {
 
 // DecAsym decypts asymetric encryption (2048 bit RSA + AES)
 func DecAsym(encData []byte) ([]byte, error) {
+	if len(encData) < 256 {
+		return nil, errors.New("Unsufficent AesKey length")
+	}
 	encAeskey := encData[:256]
 	encContent := encData[256:]
 	log.Println("before rsa")
