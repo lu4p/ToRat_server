@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func (c *client) runCommand(command string, print bool) (string, error) {
+func (c *activeClient) runCommand(command string, print bool) (string, error) {
 	err := c.sendSt(command)
 	if err != nil {
 		if print {
@@ -23,7 +23,7 @@ func (c *client) runCommand(command string, print bool) (string, error) {
 	return output, nil
 }
 
-func (c *client) runCommandByte(command string) ([]byte, error) {
+func (c *activeClient) runCommandByte(command string) ([]byte, error) {
 	err := c.sendSt(command)
 	if err != nil {
 		return nil, err

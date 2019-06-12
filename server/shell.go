@@ -2,9 +2,7 @@ package server
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/abiosoft/ishell"
@@ -24,7 +22,7 @@ func Shell() {
 	shell.AddCmd(&ishell.Cmd{
 		Name: "select",
 		Func: func(c *ishell.Context) {
-			if len(allClients) == 0 {
+			if len(activeClients) == 0 {
 				color.HiRed("No clients yet!")
 				return
 			}
@@ -37,7 +35,7 @@ func Shell() {
 	shell.AddCmd(&ishell.Cmd{
 		Name: "list",
 		Func: func(c *ishell.Context) {
-			if len(allClients) == 0 {
+			if len(activeClients) == 0 {
 				color.HiRed("No clients yet!")
 				return
 			}
@@ -48,15 +46,16 @@ func Shell() {
 	shell.AddCmd(&ishell.Cmd{
 		Name: "alias",
 		Func: func(c *ishell.Context) {
-			if len(allClients) == 0 {
+			if len(activeClients) == 0 {
 				color.HiRed("No clients yet!")
 				return
 			}
 			choice := c.MultiChoice(listConn(), "Select client to give an alias")
 			fmt.Println("Type an alias for selected client")
 			name := c.ReadLine()
-			allClients[choice].Name = name
-			ioutil.WriteFile(filepath.Join(allClients[choice].Path, "alias"), []byte(name), os.ModePerm)
+			client := activeClients[choice]
+			client.Client.Name = name
+			db.Save(&client.Client)
 		},
 		Help: "give a client an alias",
 	})
@@ -85,7 +84,7 @@ func Shell() {
 	shell.Run()
 }
 
-func (client client) shellClient() {
+func (client activeClient) shellClient() {
 	shell := ishell.New()
 	cwd, err := client.runCommand("cwd", false)
 	if err != nil {
@@ -118,7 +117,7 @@ func (client client) shellClient() {
 				color.HiRed("[!] Encoutered err listing dir")
 				return
 			}
-			println(strings.Replace(list, " ", "\n", -1))
+			println(strings.Replace(list, ";", "\n", -1))
 		},
 		Help: "list the content of the working directory of the client",
 	})
@@ -221,10 +220,10 @@ func (client client) shellClient() {
 	shell.Run()
 }
 
-func (client client) ls() []string {
+func (client activeClient) ls() []string {
 	list, err := client.runCommand("ls", false)
 	if err != nil {
 		list = "Unknown"
 	}
-	return strings.Split(list, " ")
+	return strings.Split(list, ";")
 }

