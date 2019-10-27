@@ -7,7 +7,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type Client struct {
+type client struct {
 	gorm.Model
 	Hostname string
 	Name     string
@@ -27,5 +27,5 @@ type Client struct {
 type activeClient struct {
 	Hostname string
 	Conn     net.Conn
-	Client   *Client
+	Client   *client
 }

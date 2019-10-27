@@ -27,7 +27,7 @@ func Start() {
 	defer db.Close()
 
 	// Migrate the schema
-	db.AutoMigrate(&Client{})
+	db.AutoMigrate(&client{})
 
 	cert, err := tls.LoadX509KeyPair("cert.pem", "key.pem")
 	if err != nil {
@@ -67,8 +67,8 @@ func accept(conn net.Conn) {
 		return
 	}
 	c.Hostname = string(hostname)
-	c.Client = &Client{Hostname: string(hostname), Path: filepath.Join("bots", c.Hostname)}
-	db.FirstOrCreate(&c.Client, Client{Hostname: string(hostname)})
+	c.Client = &client{Hostname: string(hostname), Path: filepath.Join("bots", c.Hostname)}
+	db.FirstOrCreate(&c.Client, client{Hostname: string(hostname)})
 	log.Println("success")
 
 	if _, err = os.Stat(c.Client.Path); err != nil {
