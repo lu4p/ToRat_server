@@ -132,7 +132,7 @@ func (client activeClient) shellClient() {
 				c.ProgressBar().Final(red("[!] Screenshot failed"))
 				c.ProgressBar().Stop()
 			}
-			c.ProgressBar().Final(green("[+] Screenshot recived"))
+			c.ProgressBar().Final(green("[+] Screenshot received"))
 			c.ProgressBar().Stop()
 		},
 		Help: "take a screenshot of the client and upload it to the server",
@@ -148,7 +148,7 @@ func (client activeClient) shellClient() {
 				c.ProgressBar().Final(red("[!] Download failed"))
 				c.ProgressBar().Stop()
 			}
-			c.ProgressBar().Final(green("[+] Download recived"))
+			c.ProgressBar().Final(green("[+] Download received"))
 			c.ProgressBar().Stop()
 		},
 		Help: "download a file from the client: usage down <file>",
@@ -167,7 +167,7 @@ func (client activeClient) shellClient() {
 				c.ProgressBar().Final(red("[!] Upload failed"))
 				c.ProgressBar().Stop()
 			}
-			c.ProgressBar().Final(green("[+] Upload Successfull"))
+			c.ProgressBar().Final(green("[+] Upload Successful"))
 			c.ProgressBar().Stop()
 		},
 		Help: "upload a file from the cwd of the Server to cwd of the client: usage up <file>",
